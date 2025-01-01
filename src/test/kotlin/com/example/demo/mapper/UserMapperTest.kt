@@ -1,27 +1,20 @@
 package com.example.demo.mapper
 
+import com.example.demo.config.MapperTestContainers
 import com.example.demo.dto.User
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection
+import org.springframework.boot.testcontainers.context.ImportTestcontainers
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.jdbc.Sql
-import org.testcontainers.containers.MySQLContainer
-import org.testcontainers.junit.jupiter.Container
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @MybatisTest
 @Sql("create_users.sql")
+@ImportTestcontainers(MapperTestContainers::class)
 class UserMapperTest {
-    companion object {
-        @Container
-        @ServiceConnection
-        @JvmStatic
-        val mySqlContainer = MySQLContainer("mysql:8.1.0")
-    }
-
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate
 
