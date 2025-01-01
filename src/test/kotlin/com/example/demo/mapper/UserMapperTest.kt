@@ -75,4 +75,20 @@ class UserMapperTest {
         assertContains(resultList, User(1L, "Updated"))
         assertContains(resultList, User(2L, "Bob"))
     }
+
+    @Test
+    @Sql(
+        statements = [
+            "INSERT INTO users VALUES (1, 'Alice')",
+            "INSERT INTO users VALUES (2, 'Bob')",
+        ]
+    )
+    fun testDeleteById() {
+        userMapper.deleteById(1)
+
+        val resultList = userMapper.selectAll()
+
+        assertEquals(1, resultList.size)
+        assertContains(resultList, User(2L, "Bob"))
+    }
 }

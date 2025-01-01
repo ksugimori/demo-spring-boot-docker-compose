@@ -17,4 +17,7 @@ interface UserMapper {
 
     @Update("UPDATE users SET name = #{user.name} WHERE id = #{user.id}")
     fun update(@Param("user") user: User)
+
+    @Delete("DELETE FROM users WHERE id = #{id}")
+    fun deleteById(@Param("id") id: Long)
 }

@@ -45,6 +45,12 @@ class UserController(private val userMapper: UserMapper) {
         return ResponseEntity.ok().build()
     }
 
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: Long): ResponseEntity<Unit> {
+        userMapper.deleteById(id)
+        return ResponseEntity.noContent().build()
+    }
+
     @ExceptionHandler(UserNotFoundException::class)
     fun handleException(ex: UserNotFoundException): ResponseEntity<Unit> {
         return ResponseEntity.notFound().build()
