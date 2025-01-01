@@ -12,7 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @MybatisTest
-@Sql("create_users.sql")
+@Sql("/ddl/create_users.sql")
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @ImportTestcontainers(TestcontainersConfig::class)
 class UserMapperTest {
