@@ -14,4 +14,7 @@ interface UserMapper {
 
     @Select("SELECT * FROM users")
     fun selectAll(): List<User>
+
+    @Update("UPDATE users SET name = #{user.name} WHERE id = #{user.id}")
+    fun update(@Param("user") user: User)
 }

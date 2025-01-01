@@ -13,7 +13,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 @MybatisTest
-@Sql("/ddl/create_users.sql")
+@Sql(scripts = ["/ddl/create_users.sql"], statements = ["TRUNCATE users"])
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @ImportTestcontainers(TestcontainersConfig::class)
 class UserMapperTest {
@@ -29,7 +29,11 @@ class UserMapperTest {
         val user = User(id = null, name = "Bob")
         userMapper.insert(user)
 
-        assertEquals(expected = 2L, actual = user.id)
+        val resultList = userMapper.selectAll()
+
+        assertEquals(2, resultList.size)
+        assertContains(resultList, User(1L, "Alice"))
+        assertContains(resultList, User(2L, "Bob"))
     }
 
     @Test
@@ -41,15 +45,34 @@ class UserMapperTest {
     }
 
     @Test
-    @Sql(statements = [
-        "INSERT INTO users VALUES (1, 'Alice')",
-        "INSERT INTO users VALUES (2, 'Bob')",
-    ])
+    @Sql(
+        statements = [
+            "INSERT INTO users VALUES (1, 'Alice')",
+            "INSERT INTO users VALUES (2, 'Bob')",
+        ]
+    )
     fun testSelectAll() {
         val resultList = userMapper.selectAll()
 
         assertEquals(2, resultList.size)
         assertContains(resultList, User(1L, "Alice"))
+        assertContains(resultList, User(2L, "Bob"))
+    }
+
+    @Test
+    @Sql(
+        statements = [
+            "INSERT INTO users VALUES (1, 'Alice')",
+            "INSERT INTO users VALUES (2, 'Bob')",
+        ]
+    )
+    fun testUpdate() {
+        userMapper.update(User(1, "Updated"))
+
+        val resultList = userMapper.selectAll()
+
+        assertEquals(2, resultList.size)
+        assertContains(resultList, User(1L, "Updated"))
         assertContains(resultList, User(2L, "Bob"))
     }
 }

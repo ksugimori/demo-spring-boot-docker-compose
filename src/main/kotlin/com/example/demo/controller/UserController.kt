@@ -2,6 +2,7 @@ package com.example.demo.controller
 
 import com.example.demo.dto.User
 import com.example.demo.mapper.UserMapper
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
@@ -29,6 +30,20 @@ class UserController(private val userMapper: UserMapper) {
 
     @GetMapping
     fun readAll(): List<User> = userMapper.selectAll()
+
+    @PutMapping("/{id}")
+    fun update(
+        @PathVariable id: Long,
+        @RequestBody user: User
+    ): ResponseEntity<Unit> {
+        if (id != user.id) {
+            return ResponseEntity.badRequest().build()
+        }
+
+        userMapper.update(user)
+
+        return ResponseEntity.ok().build()
+    }
 
     @ExceptionHandler(UserNotFoundException::class)
     fun handleException(ex: UserNotFoundException): ResponseEntity<Unit> {
