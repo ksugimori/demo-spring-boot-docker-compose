@@ -1,6 +1,6 @@
 package com.example.demo.mapper
 
-import com.example.demo.config.MapperTestContainers
+import com.example.demo.config.TestcontainersConfig
 import com.example.demo.dto.User
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 
 @MybatisTest
 @Sql("create_users.sql")
-@ImportTestcontainers(MapperTestContainers::class)
+@ImportTestcontainers(TestcontainersConfig::class)
 class UserMapperTest {
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate

@@ -4,7 +4,7 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.junit.jupiter.Container
 
-object MapperTestContainers {
+object TestcontainersConfig {
     @Container
     @ServiceConnection
     val mySqlContainer = MySQLContainer("mysql:8.1.0")
