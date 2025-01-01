@@ -5,7 +5,6 @@ import com.example.demo.dto.User
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.testcontainers.context.ImportTestcontainers
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlMergeMode
 import kotlin.test.Test
@@ -17,9 +16,6 @@ import kotlin.test.assertEquals
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @ImportTestcontainers(TestcontainersConfig::class)
 class UserMapperTest {
-    @Autowired
-    lateinit var jdbcTemplate: JdbcTemplate
-
     @Autowired
     lateinit var userMapper: UserMapper
 
