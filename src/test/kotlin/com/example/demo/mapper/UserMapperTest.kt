@@ -24,6 +24,15 @@ class UserMapperTest {
 
     @Test
     @Sql(statements = ["INSERT INTO users VALUES (1, 'Alice')"])
+    fun testInsert() {
+        val user = User(id = null, name = "Bob")
+        userMapper.insert(user)
+
+        assertEquals(expected = 2L, actual = user.id)
+    }
+
+    @Test
+    @Sql(statements = ["INSERT INTO users VALUES (1, 'Alice')"])
     fun testSelect() {
         val result = userMapper.selectById(1)
 
