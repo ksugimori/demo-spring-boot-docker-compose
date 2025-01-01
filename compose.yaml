@@ -1,0 +1,14 @@
+services:
+  mysql:
+    image: 'mysql:8.1.0'
+    ports:
+      - 3306
+    environment:
+      - 'MYSQL_ROOT_PASSWORD=passw0rd'
+      - 'MYSQL_DATABASE=demo'
+    volumes:
+      - './mysql/data:/var/lib/mysql'
+      - './mysql/sql:/docker-entrypoint-initdb.d'
+# 独自イメージを使っている場合は MySQL であることを認識させるためにラベルが必要
+#    labels:
+#      org.springframework.boot.service-connection: mysql
