@@ -27,6 +27,9 @@ class UserController(private val userMapper: UserMapper) {
         return userMapper.selectById(id) ?: throw UserNotFoundException()
     }
 
+    @GetMapping
+    fun readAll(): List<User> = userMapper.selectAll()
+
     @ExceptionHandler(UserNotFoundException::class)
     fun handleException(ex: UserNotFoundException): ResponseEntity<Unit> {
         return ResponseEntity.notFound().build()

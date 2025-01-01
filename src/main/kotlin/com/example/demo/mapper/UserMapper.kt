@@ -11,4 +11,7 @@ interface UserMapper {
 
     @Select("SELECT * FROM users WHERE id = #{id}")
     fun selectById(@Param("id") id: Long): User?
+
+    @Select("SELECT * FROM users")
+    fun selectAll(): List<User>
 }

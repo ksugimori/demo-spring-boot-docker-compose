@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlMergeMode
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 @MybatisTest
@@ -33,9 +34,22 @@ class UserMapperTest {
 
     @Test
     @Sql(statements = ["INSERT INTO users VALUES (1, 'Alice')"])
-    fun testSelect() {
+    fun testSelectById() {
         val result = userMapper.selectById(1)
 
         assertEquals(expected = User(1L, "Alice"), actual = result)
+    }
+
+    @Test
+    @Sql(statements = [
+        "INSERT INTO users VALUES (1, 'Alice')",
+        "INSERT INTO users VALUES (2, 'Bob')",
+    ])
+    fun testSelectAll() {
+        val resultList = userMapper.selectAll()
+
+        assertEquals(2, resultList.size)
+        assertContains(resultList, User(1L, "Alice"))
+        assertContains(resultList, User(2L, "Bob"))
     }
 }
