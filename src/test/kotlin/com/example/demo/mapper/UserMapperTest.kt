@@ -7,12 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.testcontainers.context.ImportTestcontainers
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.jdbc.Sql
-import kotlin.test.BeforeTest
+import org.springframework.test.context.jdbc.SqlMergeMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @MybatisTest
 @Sql("create_users.sql")
+@SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @ImportTestcontainers(TestcontainersConfig::class)
 class UserMapperTest {
     @Autowired
@@ -21,13 +22,8 @@ class UserMapperTest {
     @Autowired
     lateinit var userMapper: UserMapper
 
-    @BeforeTest
-    fun setUp() {
-        jdbcTemplate.execute("INSERT INTO users VALUES (1, 'Alice')")
-        jdbcTemplate.execute("INSERT INTO users VALUES (2, 'Bob')")
-    }
-
     @Test
+    @Sql(statements = ["INSERT INTO users VALUES (1, 'Alice')"])
     fun testSelect() {
         val result = userMapper.selectById(1)
 
