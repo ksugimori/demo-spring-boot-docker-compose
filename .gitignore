@@ -177,3 +177,4 @@ replay_pid*
 
 # other
 !gradle/wrapper/gradle-wrapper.jar
+mysql/data
