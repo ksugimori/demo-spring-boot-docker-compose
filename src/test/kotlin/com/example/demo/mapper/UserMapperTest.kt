@@ -6,30 +6,31 @@ import org.mybatis.spring.boot.test.autoconfigure.MybatisTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.testcontainers.context.ImportTestcontainers
 import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.jdbc.SqlMergeMode
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @MybatisTest
-@Sql(scripts = ["/ddl/create_users.sql"], statements = ["TRUNCATE users"])
-@SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @ImportTestcontainers(TestcontainersConfig::class)
+@Sql(
+    scripts = ["/ddl/create_users.sql"],
+    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
+)
 class UserMapperTest {
     @Autowired
     lateinit var userMapper: UserMapper
 
     @Test
-    @Sql(statements = ["INSERT INTO users VALUES (1, 'Alice')"])
     fun testInsert() {
-        val user = User(id = null, name = "Bob")
+        val user = User(id = null, name = "Alice")
         userMapper.insert(user)
 
-        val resultList = userMapper.selectAll()
-
-        assertEquals(2, resultList.size)
-        assertContains(resultList, User(1L, "Alice"))
-        assertContains(resultList, User(2L, "Bob"))
+        val newId = user.id
+        assertNotNull(newId)
+        val insertedRecord = userMapper.selectById(newId)
+        assertNotNull(insertedRecord)
+        assertEquals("Alice", insertedRecord.name)
     }
 
     @Test
