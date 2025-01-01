@@ -1,6 +1,6 @@
 package com.example.demo.mapper
 
-import com.example.demo.config.TestcontainersConfig
+import com.example.demo.config.MyContainers
 import com.example.demo.dto.User
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @MybatisTest
-@ImportTestcontainers(TestcontainersConfig::class)
+@ImportTestcontainers(MyContainers::class)
 @Sql(
     scripts = ["/ddl/create_users.sql"],
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
@@ -26,6 +26,7 @@ class UserMapperTest {
         val user = User(id = null, name = "Alice")
         userMapper.insert(user)
 
+        // 採番された値が user.id にセットされるので、SELECT して内容を確認
         val newId = user.id
         assertNotNull(newId)
         val insertedRecord = userMapper.selectById(newId)
@@ -38,7 +39,7 @@ class UserMapperTest {
     fun testSelectById() {
         val result = userMapper.selectById(1)
 
-        assertEquals(expected = User(1L, "Alice"), actual = result)
+        assertEquals(User(1L, "Alice"), result)
     }
 
     @Test
