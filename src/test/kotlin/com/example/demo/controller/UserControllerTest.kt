@@ -60,7 +60,7 @@ class UserControllerTest {
 
     @Test
     @Sql(statements = ["INSERT INTO users VALUES (1, 'Alice')"])
-    fun testSelectById() {
+    fun testRead() {
         val responseBody: User? = webTestClient.get().uri("/users/1")
             .exchange()
             .expectBody(User::class.java)
@@ -77,7 +77,7 @@ class UserControllerTest {
             "INSERT INTO users VALUES (2, 'Bob')",
         ]
     )
-    fun testSelectAll() {
+    fun testReadAll() {
         webTestClient.get().uri("/users")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
