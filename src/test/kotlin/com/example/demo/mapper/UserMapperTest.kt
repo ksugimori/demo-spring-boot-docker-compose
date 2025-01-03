@@ -4,7 +4,9 @@ import com.example.demo.config.MyContainers
 import com.example.demo.dto.User
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.data.jdbc.AutoConfigureDataJdbc
 import org.springframework.boot.testcontainers.context.ImportTestcontainers
+import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.test.context.jdbc.Sql
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -13,25 +15,31 @@ import kotlin.test.assertNotNull
 
 @MybatisTest
 @ImportTestcontainers(MyContainers::class)
+@AutoConfigureDataJdbc
 @Sql(
     scripts = ["/ddl/create_users.sql"],
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
 )
 class UserMapperTest {
     @Autowired
+    lateinit var jdbcClient: JdbcClient
+
+    @Autowired
     lateinit var userMapper: UserMapper
 
     @Test
     fun testInsert() {
+        // When
         val user = User(id = null, name = "Alice")
         userMapper.insert(user)
 
-        // 採番された値が user.id にセットされるので、SELECT して内容を確認
-        val newId = user.id
-        assertNotNull(newId)
-        val insertedRecord = userMapper.selectById(newId)
-        assertNotNull(insertedRecord)
-        assertEquals("Alice", insertedRecord.name)
+        // Then
+        val createdRecord = jdbcClient
+            .sql("SELECT id, name FROM users WHERE id = ${user.id}")
+            .query(User::class.java)
+            .single()
+
+        assertEquals("Alice", createdRecord.name)
     }
 
     @Test
@@ -50,8 +58,10 @@ class UserMapperTest {
         ]
     )
     fun testSelectAll() {
+        // When
         val resultList = userMapper.selectAll()
 
+        // Then
         assertEquals(2, resultList.size)
         assertContains(resultList, User(1L, "Alice"))
         assertContains(resultList, User(2L, "Bob"))
@@ -65,13 +75,17 @@ class UserMapperTest {
         ]
     )
     fun testUpdate() {
+        // When
         userMapper.update(User(1, "Updated"))
 
-        val resultList = userMapper.selectAll()
+        // Then
+        val records = jdbcClient.sql("SELECT id, name FROM users")
+            .query(User::class.java)
+            .list()
 
-        assertEquals(2, resultList.size)
-        assertContains(resultList, User(1L, "Updated"))
-        assertContains(resultList, User(2L, "Bob"))
+        assertEquals(2, records.size)
+        assertContains(records, User(1L, "Updated"))
+        assertContains(records, User(2L, "Bob"))
     }
 
     @Test
@@ -82,11 +96,15 @@ class UserMapperTest {
         ]
     )
     fun testDeleteById() {
+        // When
         userMapper.deleteById(1)
 
-        val resultList = userMapper.selectAll()
+        // Then
+        val records = jdbcClient.sql("SELECT id, name FROM users")
+            .query(User::class.java)
+            .list()
 
-        assertEquals(1, resultList.size)
-        assertContains(resultList, User(2L, "Bob"))
+        assertEquals(1, records.size)
+        assertContains(records, User(2L, "Bob"))
     }
 }
