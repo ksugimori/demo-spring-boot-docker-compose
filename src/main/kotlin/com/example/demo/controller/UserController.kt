@@ -2,65 +2,57 @@ package com.example.demo.controller
 
 import com.example.demo.dto.User
 import com.example.demo.mapper.UserMapper
-import org.springframework.http.ResponseEntity
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
 @RestController
 @RequestMapping("/users")
 class UserController(private val userMapper: UserMapper) {
     @PostMapping
-    fun create(@RequestBody user: User): ResponseEntity<User> {
+    @ResponseStatus(HttpStatus.CREATED)
+    fun create(@RequestBody user: User): User {
         userMapper.insert(user)
 
-        val location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{id}").buildAndExpand(user.id)
-            .toUri()
-
-        return ResponseEntity.created(location).body(user)
+        return user
     }
 
     @GetMapping("/{id}")
     fun read(@PathVariable id: Long): User {
-        return userMapper.selectById(id) ?: throw UserNotFoundException()
+        return userMapper.selectById(id) ?: throw UserNotFoundException(id)
     }
 
     @GetMapping
-    fun readAll(): List<User> = userMapper.selectAll()
+    fun readAll(): List<User> {
+        return userMapper.selectAll()
+    }
 
     @PutMapping("/{id}")
-    fun update(
-        @PathVariable id: Long,
-        @RequestBody user: User
-    ): ResponseEntity<Unit> {
+    fun update(@PathVariable id: Long, @RequestBody user: User) {
         if (id != user.id) {
-            return ResponseEntity.badRequest().build()
+            throw InconsistentUserIdException(id, user.id)
         }
 
         userMapper.update(user)
-
-        return ResponseEntity.ok().build()
     }
 
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: Long): ResponseEntity<Unit> {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(@PathVariable id: Long) {
         userMapper.deleteById(id)
-        return ResponseEntity.noContent().build()
-    }
-
-    @ExceptionHandler(UserNotFoundException::class)
-    fun handleException(ex: UserNotFoundException): ResponseEntity<Unit> {
-        return ResponseEntity.notFound().build()
     }
 }
 
-class UserNotFoundException : RuntimeException()
+@ResponseStatus(HttpStatus.NOT_FOUND)
+private class UserNotFoundException(id: Long) : RuntimeException("user not found: $id")
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+private class InconsistentUserIdException(idInPath: Long, idInBody: Long?) :
+    RuntimeException("requested ID not matched. path: /users/$idInPath, request body: $idInBody")
