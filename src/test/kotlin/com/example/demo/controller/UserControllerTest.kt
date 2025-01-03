@@ -41,7 +41,7 @@ class UserControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue("""{"name": "Alice"}""")
             .exchange()
-            .expectStatus().isCreated
+            .expectStatus().isCreated()
             .expectBody(User::class.java)
             .returnResult()
             .responseBody
@@ -61,13 +61,21 @@ class UserControllerTest {
     @Test
     @Sql(statements = ["INSERT INTO users VALUES (1, 'Alice')"])
     fun testRead() {
-        val responseBody: User? = webTestClient.get().uri("/users/1")
+        val responseBody = webTestClient.get().uri("/users/1")
             .exchange()
             .expectBody(User::class.java)
             .returnResult()
             .responseBody
 
         assertEquals(User(1L, "Alice"), responseBody)
+    }
+
+    @Test
+    @Sql(statements = ["INSERT INTO users VALUES (1, 'Alice')"])
+    fun testReadNotFound() {
+        webTestClient.get().uri("/users/99")
+            .exchange()
+            .expectStatus().isNotFound()
     }
 
     @Test
@@ -111,8 +119,8 @@ class UserControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue("""{"id": 1, "name": "Updated"}""")
             .exchange()
-            .expectStatus().isOk
-            .expectBody().isEmpty
+            .expectStatus().isOk()
+            .expectBody().isEmpty()
 
         // Then
         val records = jdbcClient.sql("SELECT id, name FROM users")
@@ -131,12 +139,37 @@ class UserControllerTest {
             "INSERT INTO users VALUES (2, 'Bob')",
         ]
     )
+    fun testUpdateBadRequest() {
+        // When
+        webTestClient.put().uri("/users/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue("""{"id": 99, "name": "Updated"}""")
+            .exchange()
+            .expectStatus().isBadRequest()
+
+        // Then
+        val records = jdbcClient.sql("SELECT id, name FROM users")
+            .query(User::class.java)
+            .list()
+
+        assertEquals(2, records.size)
+        assertContains(records, User(1L, "Alice"))
+        assertContains(records, User(2L, "Bob"))
+    }
+
+    @Test
+    @Sql(
+        statements = [
+            "INSERT INTO users VALUES (1, 'Alice')",
+            "INSERT INTO users VALUES (2, 'Bob')",
+        ]
+    )
     fun testDeleteById() {
         // When
         webTestClient.delete().uri("/users/1")
             .exchange()
-            .expectStatus().isNoContent
-            .expectBody().isEmpty
+            .expectStatus().isNoContent()
+            .expectBody().isEmpty()
 
         // Then
         val records = jdbcClient.sql("SELECT id, name FROM users")
@@ -146,6 +179,4 @@ class UserControllerTest {
         assertEquals(1, records.size)
         assertContains(records, User(2L, "Bob"))
     }
-
-    // TODO エラー系のケース
 }
