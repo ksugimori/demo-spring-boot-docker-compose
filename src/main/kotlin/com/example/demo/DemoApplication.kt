@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class DemoSpringBootDockerComposeApplication
+class DemoApplication
 
 fun main(args: Array<String>) {
-	runApplication<DemoSpringBootDockerComposeApplication>(*args)
+	runApplication<DemoApplication>(*args)
 }

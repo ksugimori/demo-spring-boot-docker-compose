@@ -18,10 +18,6 @@ import kotlin.test.assertNotNull
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ImportTestcontainers(MyContainers::class)
-@Sql(
-    scripts = ["/ddl/create_users.sql"],
-    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
-)
 class UserControllerTest {
 
     @Autowired

@@ -11,15 +11,10 @@ import org.springframework.test.context.jdbc.Sql
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 @MybatisTest
 @ImportTestcontainers(MyContainers::class)
-@AutoConfigureDataJdbc
-@Sql(
-    scripts = ["/ddl/create_users.sql"],
-    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
-)
+@AutoConfigureDataJdbc // JdbcClient を使うためのもの。TestContainers とは無関係
 class UserMapperTest {
     @Autowired
     lateinit var jdbcClient: JdbcClient
