@@ -35,7 +35,7 @@ dependencies {
 	// TestContainers
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("org.testcontainers:junit-jupiter")
-	implementation("org.testcontainers:mysql")
+	testImplementation("org.testcontainers:mysql")
 }
 
 kotlin {
